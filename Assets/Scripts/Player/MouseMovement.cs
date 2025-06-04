@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MouseMovement : MonoBehaviour
+public class CameraController : MonoBehaviour
 {
 
     [SerializeField] Transform _followTarget;
@@ -38,6 +38,7 @@ public class MouseMovement : MonoBehaviour
 
         _cameraDistance += _mouseCenter;
         _cameraDistance = Mathf.Clamp(_cameraDistance, 1f, 5f);
+
         _rotationX += _mouseY;
         _rotationX = Mathf.Clamp(_rotationX, _minVerticalAngle, _maxVerticalAngle);
         _rotationY += _mouseX;
@@ -50,6 +51,8 @@ public class MouseMovement : MonoBehaviour
 
         transform.rotation = _targetRotation;
         
-
     }
+
+    public Quaternion PlanarRotation => Quaternion.Euler(0f, _rotationY, 0f);
+
 }
