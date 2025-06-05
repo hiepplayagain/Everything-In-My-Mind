@@ -15,9 +15,21 @@ public class BehaviourManagement : MonoBehaviour
     //public float _speedRotation = 720f;
     public float _rotationSpeed = 720f;
 
+    #region Moving States
+    PlayerBaseState _playerCurrentState;
+    public PlayerIdleState _playerIdleState = new PlayerIdleState();
+    public PlayerWalkState _playerWalkState = new PlayerWalkState();
+    public PlayerRunState _playerRunState = new PlayerRunState();
+    public PlayerCrouchState _playerCrouchState = new PlayerCrouchState();
+    #endregion
+
+
+
+
     // Start is called before the first frame update
     void Start()
     {
+        SwitchState(_playerIdleState);
         _anim = GetComponent<Animator>();
         _characterController = GetComponent<CharacterController>();
         _cameraController = Camera.main.GetComponent<CameraController>();
@@ -26,53 +38,32 @@ public class BehaviourManagement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //float _inputVertical = Input.GetAxis("Vertical");
-        //float _inputHorizontal = Input.GetAxis("Horizontal");
-
-
-        //Vector3 _inputMoving = new Vector3(_inputHorizontal, 0f, _inputVertical).normalized;
-        ////Debug.Log(_inputMoving);
-        //float _inputMovingValue = _inputMoving.magnitude;
-
-        //Quaternion targetRotation;
-
-        //if (_inputMovingValue > 0.1f)
-        //{
-        //    Vector3 _movingDirection = _cameraController.PlanarRotation * _inputMoving;
-
-        //    _characterController.Move(_movingDirection * _speedWalking * Time.deltaTime);
-
-        //    targetRotation = Quaternion.LookRotation(_movingDirection);
-
-        //}
-        //else
-        //{
-        //    Vector3 cameraForward = _cameraController.PlanarRotation * Vector3.forward;
-        //    targetRotation = Quaternion.LookRotation(cameraForward);
-        //}
-
-        //transform.rotation = Quaternion.RotateTowards(
-        //    transform.rotation,
-        //    targetRotation,
-        //    _speedRotation * Time.deltaTime 
-        //    );
-
-        //_anim.SetFloat("speedWalking", _inputMovingValue);
-
         // Get input
-        float inputHorizontal = Input.GetAxisRaw("Horizontal");
-        float inputVertical = Input.GetAxisRaw("Vertical");
-        float _currentSpeed = Input.GetKey(KeyCode.LeftShift) ? _speedRunning : _speedWalking;
+        float _inputHorizontal = Input.GetAxisRaw("Horizontal");
+        float _inputVertical = Input.GetAxisRaw("Vertical");
+        //float _currentSpeed = Input.GetKey(KeyCode.LeftShift) ? _speedRunning : _speedWalking;
+        float _currentSpeed;
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            _currentSpeed = _speedRunning;
+            _anim.SetBool("isRunning", true);
+        }
+        else
+        {
+            _currentSpeed = _speedWalking;
+            _anim.SetBool("isRunning", false);
+
+        }
 
         // Calculate movement direction in world space
-        Vector3 inputDirection = new Vector3(inputHorizontal, 0f, inputVertical).normalized;
-        float inputMagnitude = inputDirection.magnitude;
+        Vector3 _inputDirection = new Vector3(_inputHorizontal, 0f, _inputVertical).normalized;
+        float _inputMagnitude = _inputDirection.magnitude;
 
         // Only process movement and rotation if there's significant input
-        if (inputMagnitude > 0.1f)
+        if (_inputMagnitude > 0.1f)
         {
             // When moving, face the movement direction
-            Vector3 moveDirection = _cameraController.PlanarRotation * inputDirection;
+            Vector3 moveDirection = _cameraController.PlanarRotation * _inputDirection;
             _characterController.Move(moveDirection * _currentSpeed * Time.deltaTime);
 
             // Smoothly rotate to face movement direction
@@ -84,10 +75,15 @@ public class BehaviourManagement : MonoBehaviour
             );
         }
 
-        // Update animator
-        _anim.SetFloat("speedWalking", inputMagnitude);
+        _anim.SetFloat("speedMoving", _inputMagnitude);
+        
 
     }
 
+    public void SwitchState(PlayerBaseState state)
+    {
+        _playerCurrentState = state;
+        _playerCurrentState.EnterState(this); 
+    }
     
 }
