@@ -47,10 +47,8 @@ public class CameraController : MonoBehaviour
         var _targetRotation = Quaternion.Euler(_rotationX, _rotationY, 0);
         var _focusPosition = _followTarget.position + new Vector3(_framingOffset.x, _framingOffset.y);
 
-        transform.position = _focusPosition - _targetRotation * new Vector3(0, 0, _cameraDistance);
+        transform.SetPositionAndRotation (_focusPosition - _targetRotation * new Vector3(0, 0, _cameraDistance), _targetRotation);
 
-        transform.rotation = _targetRotation;
-        
     }
 
     public Quaternion PlanarRotation => Quaternion.Euler(0f, _rotationY, 0f);

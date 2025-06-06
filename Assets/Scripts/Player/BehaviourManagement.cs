@@ -5,11 +5,13 @@ using UnityEngine;
 
 public class BehaviourManagement : MonoBehaviour
 {
-    Animator _anim;
+    public Animator _anim;
     CharacterController _characterController;
     CameraController _cameraController;
 
     [Header("Player stats")]
+    public float _inputMagnitude;
+    public float _currentSpeed;
     public float _speedWalking = 5f;
     public float _speedRunning = 10f;
     //public float _speedRotation = 720f;
@@ -17,13 +19,14 @@ public class BehaviourManagement : MonoBehaviour
 
     #region Moving States
     PlayerBaseState _playerCurrentState;
-    public PlayerIdleState _playerIdleState = new PlayerIdleState();
-    public PlayerWalkState _playerWalkState = new PlayerWalkState();
-    public PlayerRunState _playerRunState = new PlayerRunState();
-    public PlayerCrouchState _playerCrouchState = new PlayerCrouchState();
+    public PlayerIdleState _playerIdleState = new();
+    public PlayerWalkState _playerWalkState = new();
+    public PlayerRunState _playerRunState = new();
+    public PlayerCrouchedIdleState _playerCrouchedIdleState = new();
+    public PlayerCrouchWalkState _playerCrouchedWalkState = new();
     #endregion
 
-
+    bool _isCrouching = false;
 
 
     // Start is called before the first frame update
@@ -35,30 +38,37 @@ public class BehaviourManagement : MonoBehaviour
         _cameraController = Camera.main.GetComponent<CameraController>();
     }
 
+    
     // Update is called once per frame
     void Update()
     {
+        _playerCurrentState.UpdateState(this);
+
         // Get input
         float _inputHorizontal = Input.GetAxisRaw("Horizontal");
         float _inputVertical = Input.GetAxisRaw("Vertical");
-        //float _currentSpeed = Input.GetKey(KeyCode.LeftShift) ? _speedRunning : _speedWalking;
-        float _currentSpeed;
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            _currentSpeed = _speedRunning;
-            _anim.SetBool("isRunning", true);
-        }
-        else
-        {
-            _currentSpeed = _speedWalking;
-            _anim.SetBool("isRunning", false);
 
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            _isCrouching = !_isCrouching;
+            if (_isCrouching)
+            {
+                if (_currentSpeed > 0.1f) SwitchState(_playerCrouchedWalkState);
+                else SwitchState(_playerCrouchedIdleState);
+
+            }
+            else
+            {
+                if (_currentSpeed > 0.1f) SwitchState(_playerWalkState);
+                else SwitchState(_playerIdleState);
+
+            }
         }
 
         // Calculate movement direction in world space
         Vector3 _inputDirection = new Vector3(_inputHorizontal, 0f, _inputVertical).normalized;
-        float _inputMagnitude = _inputDirection.magnitude;
-
+        _inputMagnitude = _inputDirection.magnitude;
+        //Debug.Log()
         // Only process movement and rotation if there's significant input
         if (_inputMagnitude > 0.1f)
         {
@@ -75,7 +85,7 @@ public class BehaviourManagement : MonoBehaviour
             );
         }
 
-        _anim.SetFloat("speedMoving", _inputMagnitude);
+        _anim.SetFloat("speedMoving", _currentSpeed);
         
 
     }
