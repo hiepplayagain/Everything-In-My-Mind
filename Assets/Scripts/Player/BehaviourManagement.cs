@@ -26,10 +26,8 @@ public class BehaviourManagement : MonoBehaviour
     public PlayerCrouchWalkState _playerCrouchedWalkState = new();
     #endregion
 
-    bool _isCrouching = false;
+    public bool _isCrouching = false;
 
-
-    // Start is called before the first frame update
     void Start()
     {
         SwitchState(_playerIdleState);
@@ -38,38 +36,25 @@ public class BehaviourManagement : MonoBehaviour
         _cameraController = Camera.main.GetComponent<CameraController>();
     }
 
-    
-    // Update is called once per frame
     void Update()
     {
         _playerCurrentState.UpdateState(this);
 
-        // Get input
+        Moving();
+
+    }
+
+    public void Moving()
+    {
+        
         float _inputHorizontal = Input.GetAxisRaw("Horizontal");
         float _inputVertical = Input.GetAxisRaw("Vertical");
-
-        if (Input.GetKey(KeyCode.LeftControl))
-        {
-            _isCrouching = !_isCrouching;
-            if (_isCrouching)
-            {
-                if (_currentSpeed > 0.1f) SwitchState(_playerCrouchedWalkState);
-                else SwitchState(_playerCrouchedIdleState);
-
-            }
-            else
-            {
-                if (_currentSpeed > 0.1f) SwitchState(_playerWalkState);
-                else SwitchState(_playerIdleState);
-
-            }
-        }
 
         // Calculate movement direction in world space
         Vector3 _inputDirection = new Vector3(_inputHorizontal, 0f, _inputVertical).normalized;
         _inputMagnitude = _inputDirection.magnitude;
-        //Debug.Log()
-        // Only process movement and rotation if there's significant input
+        
+        
         if (_inputMagnitude > 0.1f)
         {
             // When moving, face the movement direction
@@ -86,7 +71,6 @@ public class BehaviourManagement : MonoBehaviour
         }
 
         _anim.SetFloat("speedMoving", _currentSpeed);
-        
 
     }
 

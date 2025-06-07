@@ -12,9 +12,7 @@ public class PlayerRunState : PlayerBaseState
 
     public override void UpdateState(BehaviourManagement _movingState)
     {
-        if (Input.GetKey(KeyCode.LeftControl)) ExitState(_movingState, _movingState._playerCrouchedIdleState);
-
-        else if (Input.GetKeyUp(KeyCode.LeftShift)) ExitState(_movingState, _movingState._playerWalkState);
+        if (Input.GetKeyUp(KeyCode.LeftShift)) ExitState(_movingState, _movingState._playerWalkState);
 
         else if (_movingState._inputMagnitude < 0.1f) ExitState(_movingState, _movingState._playerIdleState);
     }

@@ -15,8 +15,6 @@ public class PlayerWalkState : PlayerBaseState
         
         if (Input.GetKeyDown(KeyCode.LeftShift)) ExitState(_movingState, _movingState._playerRunState);
 
-        else if (Input.GetKey(KeyCode.LeftControl)) ExitState(_movingState, _movingState._playerCrouchedIdleState);
-
         else if (_movingState._inputMagnitude < 0.1f) ExitState(_movingState, _movingState._playerIdleState);
     }
 
